@@ -59,4 +59,9 @@ $EMCC $CFLAGS $objs -o "$OUT/$NAME.mjs" \
   -sEXPORTED_FUNCTIONS="$exports" \
   -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS,getValue,setValue,UTF8ToString,lengthBytesUTF8,stringToUTF8
 
-echo "done -> $OUT/$NAME.mjs (default export: $EXPORT_NAME), $OUT/$NAME.wasm"
+echo "GEN $OUT/registers.json"
+$EMCC $CFLAGS $CPPFLAGS build/offsets.c -o "$OUT/offsets-gen.js" -sENVIRONMENT=node
+node "$OUT/offsets-gen.js" >"$OUT/registers.json"
+rm -f "$OUT/offsets-gen.js" "$OUT/offsets-gen.wasm"
+
+echo "done -> $OUT/$NAME.mjs (default export: $EXPORT_NAME), $OUT/$NAME.wasm, $OUT/registers.json"
