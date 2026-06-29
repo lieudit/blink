@@ -60,8 +60,10 @@ $EMCC $CFLAGS $objs -o "$OUT/$NAME.mjs" \
   -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS,getValue,setValue,UTF8ToString,lengthBytesUTF8,stringToUTF8
 
 echo "GEN $OUT/registers.json"
-$EMCC $CFLAGS $CPPFLAGS build/offsets.c -o "$OUT/offsets-gen.js" -sENVIRONMENT=node
-node "$OUT/offsets-gen.js" >"$OUT/registers.json"
-rm -f "$OUT/offsets-gen.js" "$OUT/offsets-gen.wasm"
+# Emit .cjs so Node treats the generator as CommonJS even when an ancestor
+# package.json declares "type": "module" (e.g. when vendored as a submodule).
+$EMCC $CFLAGS $CPPFLAGS build/offsets.c -o "$OUT/offsets-gen.cjs" -sENVIRONMENT=node
+node "$OUT/offsets-gen.cjs" >"$OUT/registers.json"
+rm -f "$OUT/offsets-gen.cjs" "$OUT/offsets-gen.wasm"
 
 echo "done -> $OUT/$NAME.mjs (default export: $EXPORT_NAME), $OUT/$NAME.wasm, $OUT/registers.json"
