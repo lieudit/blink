@@ -31,11 +31,16 @@
 extern char **environ;
 extern char *g_blink_path;
 
+#define BLINK_ARGV_MAX 4096
+
 static bool g_inited;
 static int g_status;
 static int g_signal;
 static char g_path[1024];
 static struct Dis g_dis[1];
+
+static char g_argv_string[BLINK_ARGV_MAX];
+static int g_argc;
 
 EXPORT int blink_init(void) {
   if (g_inited) return 0;
@@ -60,9 +65,39 @@ static void ProgramLimit(struct System *s, int hresource, int gresource) {
   }
 }
 
+EXPORT char *blink_argv_ptr(void) {
+  return g_argv_string;
+}
+
+EXPORT int *blink_argc_ptr(void) {
+  return &g_argc;
+}
+
+static char **BuildArgv(void) {
+  int i, argc;
+  char *p, *end;
+  char **argv;
+  argc = g_argc;
+  if (argc <= 0) return NULL;
+  if (!(argv = (char **)malloc((argc + 1) * sizeof(char *)))) return NULL;
+  p = g_argv_string;
+  end = g_argv_string + sizeof(g_argv_string);
+  for (i = 0; i < argc; ++i) {
+    if (p >= end) {
+      free(argv);
+      return NULL;
+    }
+    argv[i] = p;
+    p += strlen(p) + 1;
+  }
+  argv[argc] = 0;
+  return argv;
+}
+
 EXPORT int blink_load(const char *prog) {
   int i;
-  char *argv[2];
+  char *defargv[2];
+  char **argv;
   struct Machine *m;
   if (!g_inited && blink_init()) return kBlinkError;
   if (g_machine) blink_reset();
@@ -72,9 +107,13 @@ EXPORT int blink_load(const char *prog) {
     return kBlinkError;
   }
   m->system->trapexit = true;
-  argv[0] = g_path;
-  argv[1] = 0;
+  if (!(argv = BuildArgv())) {
+    defargv[0] = g_path;
+    defargv[1] = 0;
+    argv = defargv;
+  }
   LoadProgram(m, g_path, g_path, argv, environ, NULL);
+  if (argv != defargv) free(argv);
   SetupCod(m);
   for (i = 0; i < 10; ++i) AddStdFd(&m->system->fds, i);
   ProgramLimit(m->system, RLIMIT_NOFILE, RLIMIT_NOFILE_LINUX);

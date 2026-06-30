@@ -23,5 +23,7 @@ int blink_status(void);
 int blink_exit_code(void);
 int blink_signal(void);
 long blink_disasm(double, int, char *, long);
+char *blink_argv_ptr(void);
+int *blink_argc_ptr(void);
 
 #endif /* BLINK_WEBAPI_H_ */
