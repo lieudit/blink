@@ -51,7 +51,7 @@ exports="$exports,_malloc,_free"
 echo "LINK $OUT/$NAME.mjs"
 $EMCC $CFLAGS $objs -o "$OUT/$NAME.mjs" \
   --no-entry \
-  --emit-tsd "$NAME.d.ts" \
+  --emit-tsd "$NAME.d.mts" \
   -sASYNCIFY \
   -sALLOW_MEMORY_GROWTH=1 \
   -sMODULARIZE=1 \
@@ -67,4 +67,4 @@ $EMCC $CFLAGS $CPPFLAGS build/offsets.c -o "$OUT/offsets-gen.cjs" -sENVIRONMENT=
 node "$OUT/offsets-gen.cjs" >"$OUT/registers.json"
 rm -f "$OUT/offsets-gen.cjs" "$OUT/offsets-gen.wasm"
 
-echo "done -> $OUT/$NAME.mjs (default export: $EXPORT_NAME), $OUT/$NAME.wasm, $OUT/$NAME.d.ts, $OUT/registers.json"
+echo "done -> $OUT/$NAME.mjs (default export: $EXPORT_NAME), $OUT/$NAME.wasm, $OUT/$NAME.d.mts, $OUT/registers.json"
