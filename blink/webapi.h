@@ -26,4 +26,7 @@ long blink_disasm(double, int, char *, long);
 char *blink_argv_ptr(void);
 int *blink_argc_ptr(void);
 
+typedef void (*BlinkSignalHandler)(int);
+void blink_set_signal_handler(BlinkSignalHandler);
+
 #endif /* BLINK_WEBAPI_H_ */

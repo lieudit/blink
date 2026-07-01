@@ -41,6 +41,7 @@ static struct Dis g_dis[1];
 
 static char g_argv_string[BLINK_ARGV_MAX];
 static int g_argc;
+static BlinkSignalHandler g_signal_handler;
 
 EXPORT int blink_init(void) {
   if (g_inited) return 0;
@@ -122,8 +123,13 @@ EXPORT int blink_load(const char *prog) {
   return 0;
 }
 
+EXPORT void blink_set_signal_handler(BlinkSignalHandler handler) {
+  g_signal_handler = handler;
+}
+
 void TerminateSignal(struct Machine *m, int sig, int code) {
   g_signal = sig;
+  if (g_signal_handler) g_signal_handler(sig);
   m->system->exitcode = 128 + sig;
   m->trapno = sig;
   unassert(m->canhalt);
